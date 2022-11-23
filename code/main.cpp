@@ -6,6 +6,7 @@
 #include<string.h>
 #include "logger.h"
 #include "Database.h"
+#include<signal.h>
 
 using namespace std;
 
@@ -13,6 +14,7 @@ void login();
 void registr();
 void forgot();
 void AdminLogin();
+void mainMenu();
 
 void Client()
 {
@@ -38,6 +40,20 @@ void Server()
     process(execDemo.c) is replaced by another process (EXEC.c)
     */
     cout<<"Ending-----"<<endl;
+}
+
+void sigint_handler(int signal)
+{
+	cout << "\n\nCaught ^C " << signal << endl;
+	cout << "Returning to main menu\n" << endl;
+	mainMenu();
+}
+
+void sigtstp_handler(int signal)
+{
+	cout << "\n\nCaught ^Z "<< endl;
+	cout << "Program exited Successfully ...\n" << endl;
+	exit(1);
 }
 
 void AdminLogin()
@@ -355,13 +371,49 @@ void forgot()
     }
 }
 
+void mainMenu()
+{
+    LOG_INFO("----------------WELCOME TO THE ONLINE LMS------------------");
+    cout<<endl;
+    LOG_INFO("//   1.Admin Login   //");
+    cout<<endl;
+    LOG_INFO("//   2.User Login    //");
+    cout<<endl;
+    int Choice;
+    signal(SIGINT, sigint_handler);
+    signal(SIGTSTP, sigtstp_handler);    
+    LOG_INFO("Enter Login Type ");
+    cin>>Choice;
+    
+    switch(Choice)
+    {
+        case 1:
+            AdminLogin();
+            break;
+        
+        case 2:
+            Menu();
+            break;
+        default:
+            LOG_ERROR("Enter Correct Login Type");
+            cout<<endl;
+    }
+}
+
 
 
 int main()
 {
+   
+
     LOG_INIT();
-    LOG_INFO("----------------WELCOME TO THE ONLINE LMS------------------");
+    signal(SIGINT, sigint_handler);
+    signal(SIGTSTP, sigtstp_handler);
+    mainMenu();
+    /*LOG_INFO("----------------WELCOME TO THE ONLINE LMS------------------");
+    
     cout<<endl;
+    
     LOG_INFO("//   1.Admin Login   //");
     cout<<endl;
     LOG_INFO("//   2.User Login    //");
@@ -382,7 +434,7 @@ int main()
         default:
             LOG_ERROR("Enter Correct Login Type");
             cout<<endl;
-    }
+    }*/
     LOG_DEINIT();
     return 0;
 }
