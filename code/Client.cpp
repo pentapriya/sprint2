@@ -11,6 +11,7 @@ using namespace std;
 #define MAX 80
 #define PORT 8080
 #define SA struct sockaddr
+int sockfd;
 
 void func(int sockfd)
 {
@@ -38,11 +39,21 @@ void func(int sockfd)
 
     }
 }
+void sigtstp_handler(int signal)
+{
+	char msg[MAX];
+	strcpy(msg,"exit");
+	write(sockfd, msg, sizeof(msg));
+	cout << "Closing client connection" << endl;
+	cout << "Program exited successfully..." << endl; 
+	exit(0);
+}
 
 int main()
 {
-    int sockfd;
+    //int sockfd;
     struct sockaddr_in servaddr;
+    signal(SIGTSTP, sigtstp_handler);
 
     // socket create and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
