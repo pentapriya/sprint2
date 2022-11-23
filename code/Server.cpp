@@ -1,3 +1,21 @@
+#include<iostream>
+#include <stdio.h>
+#include <signal.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include<unistd.h>
+using namespace std;
+#define MAX 80
+#define PORT 7070
+#define SA struct sockaddr
+
+
+int connfd;
+
 void func(int connfd)
 {
     char buff[MAX];
@@ -31,14 +49,25 @@ void func(int connfd)
         }
     }
 }
+void sigtstp_handler(int signal)
+{
+	char msg[MAX];
+	strcpy(msg, "exit");
+	cout << "\nCaught ^Z "<< endl;
+	cout << "Closing server connection " <<endl;
+	write(connfd, msg, sizeof(msg));	
+	exit(0);
+}
 
 
 // Driver function
 int main()
 {
-    int sockfd, connfd;
+    int sockfd;
     struct sockaddr_in servaddr, cli;
-   socklen_t clilen;
+    signal(SIGTSTP, sigtstp_handler);
+
+    socklen_t clilen;
     // socket create and verification
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd == -1) {
